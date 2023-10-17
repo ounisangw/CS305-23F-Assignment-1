@@ -51,11 +51,28 @@ class SMTPServer(BaseRequestHandler):
         ...
 
 
+def run_server():
+    smtp_server = ThreadingTCPServer(('', SMTP_PORT), SMTPServer)
+    pop_server = ThreadingTCPServer(('', POP_PORT), POP3Server)
+
+    smtp_thread = Thread(target=smtp_server.serve_forever)
+    pop_thread = Thread(target=pop_server.serve_forever)
+
+    smtp_thread.daemon = True
+    pop_thread.daemon = True
+
+    smtp_thread.start()
+    pop_thread.start()
+
+    while True:
+        pass
+
 if __name__ == '__main__':
     if student_id() % 10000 == 0:
         raise ValueError('Invalid student ID')
+    
+    try:
+        run_server()
+    except KeyboardInterrupt:
+        print('Shutting down...')
 
-    smtp_server = ThreadingTCPServer(('', SMTP_PORT), SMTPServer)
-    pop_server = ThreadingTCPServer(('', POP_PORT), POP3Server)
-    Thread(target=smtp_server.serve_forever).start()
-    Thread(target=pop_server.serve_forever).start()
