@@ -42,7 +42,7 @@ def fdns_query(domain: str, type_: str) -> str | None:
 class TestScenario:
     def __init__(self, filename: str):
         def to_runnable(server: dict[str, str]) -> sp.Popen:
-            code = 'server2.py' if server['type'] == 'student' else 'std_server.py'
+            code = 'server.py' if server['type'] == 'student' else 'std_server.py'
             return sp.Popen(f'python3 {code} -n {server["domain"]}', shell=True,
                             stdout=sp.DEVNULL, stderr=sp.DEVNULL
                             )
@@ -233,7 +233,7 @@ if __name__ == '__main__':
     print('\n\n')
 
     sys.argv[1:] = ["--name", "gmail.com"]
-    from server2 import student_id
+    from server import student_id
 
     print('***** TEST SUMMARY *****', file=FILE)
     print(f'StudentID: {student_id()}', file=FILE)
