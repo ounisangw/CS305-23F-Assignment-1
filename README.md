@@ -56,5 +56,5 @@ Test scrpits fixed. What is worth mentioning is that:
 * All the tests about POP3 are based on SMTP tests. That is to say, only if you have passed all the tests related to SMTP can you possibly pass the POP3 test. If you failed with finishing some implementations of SMTP which causes you failed to pass all POP3 tests, but you think you have implemented some functions of POP3, **prove it** (with screen shot etc.) in your final report.
 * For the screenshot of Wireshark, you just need to show your result of capturing the **SMTP AND POP3** packets when running test case "**4.yml**". 
 
-
+* You are suggested to run the tests under **Linux** environment.
 
