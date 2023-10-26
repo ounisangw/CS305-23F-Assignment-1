@@ -1,5 +1,5 @@
 scenario: Send an email to another user in the same domain and test RETR, DELE, RSET and NOOP
-credit: 8
+credit: 5
 
 servers:
   - domain: 'exmail.qq.com'
@@ -36,13 +36,13 @@ steps:
     args:
       which: 1
     expect:
-      resp: "b'+OK'"
+      resp: "b'+OK"
   - name: Reset the deletion
     uses: rset
     expect:
-      resp: "b'+OK'"
+      resp: "b'+OK"
   - name: Cmd Noop
     uses: noop
     expect:
-      resp: "b'+OK'"
+      resp: "b'+OK"
   - uses: quit

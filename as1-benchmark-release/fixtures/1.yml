@@ -1,4 +1,4 @@
-scenario: POP3 HELO and QUIT
+scenario: POP3 USER, PASS and QUIT
 credit: 15
 
 servers:

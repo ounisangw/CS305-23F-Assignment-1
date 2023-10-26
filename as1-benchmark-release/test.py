@@ -17,6 +17,7 @@ from typing import Literal
 from timeout_decorator import timeout, TimeoutError
 import tomli
 import yaml
+import psutil
 
 ThreadingTCPServer.allow_reuse_address = True
 
@@ -64,14 +65,33 @@ class TestScenario:
     def __exit__(self, exc_type, exc_val, exc_tb):
         print(f'Teardown scenario: {self.scenario}')
         for proc in self.subprocesses:
-            with suppress(Exception):
-                proc.kill()
+            proccccc = psutil.Process(proc.pid)
+            for c in proccccc.children(recursive=True):
+                c.kill()
+            proc.kill()
         time.sleep(3)
 
     def run(self) -> TestResult:
         for step in self.steps:
             try:
-                step.run()
+                try:
+                    step.run()
+                except Exception as e:
+                    if step.excepted_error is None:
+                        raise e
+                    ee = e
+                    while type(ee) is not Exception:
+                        ee_type = type(ee).__name__
+                        if ee_type in step.excepted_error:
+                            return TestResult(
+                                scenario=self.scenario,
+                                possible_credit=self.credit,
+                                actual_credit=step.excepted_error[ee_type],
+                                stats='PARTIALLY PASSED',
+                                message=f'Raised error in step {step.name}: {ee_type} -> {step.excepted_error[ee_type]} pts',
+                            )
+                        ee = ee.__class__.__bases__[0]
+                    raise e
             except TimeoutError:
                 return TestResult(
                     scenario=self.scenario,
@@ -134,7 +154,7 @@ def LOGIN(user: str, pass_: str):
 
 @timeout(8)
 def STAT() -> dict[str, int]:
-    return dict(zip(('count', 'size'), conn.stat()))
+    return [dict(zip(('count', 'size'), conn.stat()))]
 
 
 @timeout(8)
@@ -179,13 +199,13 @@ def NOOP():
     return {'resp': resp}
 
 
-
 @dataclass
 class TestStep:
     uses: str
     name: str | None = None
     args: dict[str, object] | None = None
     expect: dict[str, object] | None = None
+    excepted_error: dict[str, int] | None = None
 
     def run(self):
         self.name = self.name or self.uses
@@ -196,7 +216,23 @@ class TestStep:
         if self.expect is not None:
             print('    >>> Expect:', self.expect)
             print('    >>> Actual:', actual)
-        assert actual == self.expect
+
+            if type(self.expect) is dict:
+                for k, v in self.expect.items():
+                    if type(v) is str:
+                        # assert v in actual[k]
+                        assert actual[k][:len(v)] == v
+                    else:
+                        assert actual[k] == v
+            elif type(self.expect) is list:
+                if len(self.expect) == 0:
+                    assert len(actual) == 0
+                for i, item in enumerate(self.expect):
+                    if type(item) is dict:
+                        for k, v in item.items():
+                            assert actual[i][k] == v
+                    else:
+                        assert actual[i] == item
 
 
 @dataclass
@@ -204,7 +240,7 @@ class TestResult:
     scenario: str
     possible_credit: int
     actual_credit: int
-    stats: Literal['PASSED', 'FAILED', 'ERROR']
+    stats: Literal['PASSED', 'FAILED', 'ERROR', 'PARTIALLY PASSED']
     message: str | None
 
     def __str__(self):
@@ -221,7 +257,7 @@ if __name__ == '__main__':
     fixtures_to_run = args.fixtures.split(',') if args.fixtures else None
 
     res = []
-    for filename in os.listdir('fixtures'):
+    for filename in sorted(os.listdir('fixtures')):
         if not fixtures_to_run or filename.rstrip('.yml') in fixtures_to_run:
             with TestScenario(os.path.join('fixtures', filename)) as scenario:
                 res.append(scenario.run())

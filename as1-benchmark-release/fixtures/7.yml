@@ -1,4 +1,4 @@
-scenario: Send an email to another user in the different domain and test LIST
+scenario: Send an email to another user from a non-existing email address
 credit: 5
 
 servers:
@@ -11,11 +11,13 @@ steps:
   - name: Send email
     uses: sendmail
     args:
-      from: 'usr1@mail.sustech.edu.cn'
+      from: 'error@mail.sustech.edu.cn'
       to:
         - 'usr1@gmail.com'
-      subject: 'Test Subject'
-      body: 'Test Body'
+      subject: 'Test Subject7'
+      body: 'Test Body7'
+    excepted_error:
+      'SMTPSenderRefused': 5
   - uses: wait
     args:
       seconds: 3
@@ -27,5 +29,5 @@ steps:
   - name: List the email
     uses: list
     expect:
-      - mesg_num: 1
+      - []
   - uses: quit

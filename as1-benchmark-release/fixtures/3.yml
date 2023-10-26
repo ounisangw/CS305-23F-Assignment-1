@@ -28,5 +28,4 @@ steps:
     uses: stat
     expect:
       - count: 1
-        size: 161
   - uses: quit

@@ -1,5 +1,5 @@
 scenario: Send an email to another user in the different domain and test LIST
-credit: 5
+credit: 50
 
 servers:
   - domain: 'exmail.qq.com'
@@ -16,9 +16,15 @@ steps:
         - 'usr1@gmail.com'
       subject: 'Test Subject'
       body: 'Test Body'
+    excepted_error:
+      'SMTPHeloError': 0
+      'SMTPSenderRefused': 10
+      'SMTPRecipientsRefused': 20
+      'SMTPDataError': 30
   - uses: wait
     args:
       seconds: 3
+
   - name: Login the account in different domain
     uses: login
     args:
