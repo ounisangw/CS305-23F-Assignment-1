@@ -26,8 +26,8 @@ steps:
     args:
       user: 'usr1@gmail.com'
       pass: 'password1'
-  - name: List the email
-    uses: list
+  - name: Show the status
+    uses: stat
     expect:
-      - []
+      - count: 0
   - uses: quit

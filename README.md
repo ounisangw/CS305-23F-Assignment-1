@@ -58,3 +58,8 @@ Test scrpits fixed. What is worth mentioning is that:
 
 * You are suggested to run the tests under **Linux** environment.
 
+
+
+2023.10.27
+
+Fix test case 7.yml
