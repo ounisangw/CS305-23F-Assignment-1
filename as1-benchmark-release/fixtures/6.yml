@@ -16,6 +16,9 @@ steps:
         - 'error@gmail.com'
       subject: 'Test Subject6'
       body: 'Test Body6'
+    excepted_error:
+      'SMTPRecipientsRefused': 5
+      'SMTPDataError': 5
   - uses: wait
     args:
       seconds: 5
